@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"mygram/auth"
 	"mygram/helper"
 	"mygram/user"
 	"net/http"
@@ -11,11 +10,10 @@ import (
 
 type userHandler struct {
 	userService user.Service
-	authService auth.Service
 }
 
-func NewUserHandler(userService user.Service, authService auth.Service) *userHandler {
-	return &userHandler{userService, authService}
+func NewUserHandler(userService user.Service) *userHandler {
+	return &userHandler{userService}
 }
 
 func (h *userHandler) RegisterUser(c *gin.Context) {
@@ -36,13 +34,7 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 		c.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
-	token, err := h.authService.GenerateToken(newUser.ID)
-	if err != nil {
-		response := helper.APIresponse(http.StatusUnprocessableEntity, nil)
-		c.JSON(http.StatusUnprocessableEntity, response)
-		return
-	}
-	formatter := user.FormatterUser(newUser, token)
+	formatter := user.FormatterUser(newUser, "")
 	response := helper.APIresponse(http.StatusOK, formatter)
 	c.JSON(http.StatusOK, response)
 }
